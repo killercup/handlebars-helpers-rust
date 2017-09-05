@@ -1,0 +1,9 @@
+[package]
+authors = ["Pascal Hertleif <killercup@gmail.com>"]
+name = "handlebars-helpers"
+version = "0.1.0"
+readme = "README.md"
+
+[dependencies]
+handlebars = "0.29.1"
+serde_json = "1.0.3"
