@@ -2,12 +2,13 @@ extern crate handlebars;
 extern crate serde_json;
 
 use handlebars::Handlebars;
-use serde_json::{to_writer as json_to_writer, to_string as json_to_string};
 
-#[macro_use] mod macros;
+#[macro_use]
+mod macros;
 
 mod helpers {
     use handlebars;
+    use serde_json;
 
     handlebars_helper!(gt: |x: u64, y: u64| x > y);
     handlebars_helper!(gte: |x: u64, y: u64| x >= y);

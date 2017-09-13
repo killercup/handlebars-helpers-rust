@@ -12,41 +12,40 @@ macro_rules! json_value_as {
 
 #[macro_export]
 macro_rules! handlebars_helper {
-    ($fn_name:ident: |$($name:ident: $tpe:tt),*| $body:expr ) => {
-        #[allow(unused_assignments)]
-        pub fn $fn_name(
-            h: &handlebars::Helper,
-            _: &handlebars::Handlebars,
-            rc: &mut handlebars::RenderContext
-        ) -> Result<(), handlebars::RenderError> {
-            let mut param_idx = 0;
+    ($struct_name:ident: |$($name:ident: $tpe:tt),*| $body:expr ) => {
+        #[allow(non_camel_case_types)]
+        pub struct $struct_name;
 
-            $(
-                let $name = h.param(param_idx)
-                    .map(|x| x.value())
-                    .ok_or_else(|| handlebars::RenderError::new(&format!(
-                        "`{}` helper: Couldn't read parameter {}",
-                        stringify!($fn_name), stringify!($name),
-                    )))
-                    .and_then(|x|
-                        json_value_as!(x, $tpe)
+        impl handlebars::HelperDef for $struct_name {
+            #[allow(unused_assignments)]
+            fn call_inner(&self,
+                          h: &handlebars::Helper,
+                          _: &handlebars::Handlebars,
+                          _: &mut handlebars::RenderContext) -> Result<Option<serde_json::Value>, handlebars::RenderError> {
+                let mut param_idx = 0;
+
+                $(
+                    let $name = h.param(param_idx)
+                        .map(|x| x.value())
                         .ok_or_else(|| handlebars::RenderError::new(&format!(
-                            "`{}` helper: Couldn't convert parameter {} to type `{}`. \
-                            It's {:?} as JSON. Got these params: {:?}",
-                            stringify!($fn_name), stringify!($name), stringify!($tpe),
-                            x, h.params(),
+                            "`{}` helper: Couldn't read parameter {}",
+                            stringify!($fn_name), stringify!($name),
                         )))
-                    )?;
-                param_idx += 1;
-            )*
+                        .and_then(|x|
+                                  json_value_as!(x, $tpe)
+                                  .ok_or_else(|| handlebars::RenderError::new(&format!(
+                                      "`{}` helper: Couldn't convert parameter {} to type `{}`. \
+                                       It's {:?} as JSON. Got these params: {:?}",
+                                      stringify!($fn_name), stringify!($name), stringify!($tpe),
+                                      x, h.params(),
+                                  )))
+                        )?;
+                    param_idx += 1;
+                )*
 
-            let result = $body;
-
-            println!("debug!! {}({}): {}", stringify!($fn_name), concat!($(stringify!($name), ", "),*), $crate::json_to_string(&result).unwrap());
-
-            // rc.writer().write($crate::json_to_string(&result)?.as_bytes())?;
-            $crate::json_to_writer(rc.writer(), &result)?;
-            Ok(())
+                let result = $body;
+                Ok(Some(serde_json::Value::from(result)))
+            }
         }
     };
 }
