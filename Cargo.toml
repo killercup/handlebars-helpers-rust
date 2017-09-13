@@ -5,5 +5,5 @@ version = "0.1.0"
 readme = "README.md"
 
 [dependencies]
-handlebars = "0.29.1"
+handlebars = { git = "https://github.com/sunng87/handlebars-rust.git" }
 serde_json = "1.0.3"
