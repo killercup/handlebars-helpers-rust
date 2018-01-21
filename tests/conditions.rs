@@ -11,12 +11,12 @@ fn nested_conditions() {
     handlebars_helpers::register(&mut handlebars);
 
     let result = handlebars
-        .template_render("{{#if (gt 5 3)}}lorem{{else}}ipsum{{/if}}", &json!({}))
+        .render_template("{{#if (gt 5 3)}}lorem{{else}}ipsum{{/if}}", &json!({}))
         .unwrap();
     assert_eq!(&result, "lorem");
 
     let result = handlebars
-        .template_render(
+        .render_template(
             "{{#if (not (gt 5 3))}}lorem{{else}}ipsum{{/if}}",
             &json!({}),
         )
